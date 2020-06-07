@@ -28,11 +28,14 @@ public class JavaCompilerTest
 
     private void testCompilation(final String content) throws IOException, ClassNotFoundException
     {
-        final Compiler javaCompiler = new JavaCompiler(JavaCompilerTest.class.getClassLoader());
         final Path srcDir = Files.createTempDirectory("java-compile-test");
         final Path classesDir = srcDir.resolve("classes");
+        final ClassLoader classLoader = new URLClassLoader(new URL[]{IoUtil.toURL(classesDir)});
+        final Compiler javaCompiler = new JavaCompiler(classLoader);
+        Files.createDirectories(classesDir);
         Files.write(srcDir.resolve("Test.java"), content.getBytes(StandardCharsets.UTF_8));
         javaCompiler.compile(Collections.singleton(srcDir), classesDir);
-        new URLClassLoader(new URL[]{IoUtil.toURL(classesDir)}).loadClass("Test");
+        final ClassLoader classLoader2 = new URLClassLoader(new URL[]{IoUtil.toURL(classesDir)});
+        classLoader2.loadClass("Test");
     }
 }

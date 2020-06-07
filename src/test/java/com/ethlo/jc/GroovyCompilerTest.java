@@ -31,6 +31,7 @@ public class GroovyCompilerTest
         final Compiler compiler = new GroovyCompiler(classLoader);
         final Path srcDir = Files.createTempDirectory("groovy-compile-test");
         final Path classesDir = srcDir.resolve("classes");
+        Files.createDirectories(classesDir);
         Files.write(srcDir.resolve("Test.groovy"), content.getBytes(StandardCharsets.UTF_8));
         compiler.compile(Collections.singleton(srcDir), classesDir);
         classLoader.loadClass("Test");
