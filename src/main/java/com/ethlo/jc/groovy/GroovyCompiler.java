@@ -26,11 +26,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
+import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilationUnit;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ethlo.jc.CompilationException;
 import com.ethlo.jc.Compiler;
 import com.ethlo.jc.CompilerUtil;
 import com.ethlo.jc.IoUtil;
@@ -72,7 +74,14 @@ public class GroovyCompiler implements Compiler
         final CompilerConfiguration ccfg = new CompilerConfiguration();
         ccfg.setTargetDirectory(classesDirectory.toFile());
         compileUnit.setConfiguration(ccfg);
-        compileUnit.compile();
+        try
+        {
+            compileUnit.compile();
+        }
+        catch (CompilationFailedException exc)
+        {
+            throw new CompilationException(exc.getMessage(), exc);
+        }
         classLoader.addURL(IoUtil.toURL(classesDirectory.toAbsolutePath()));
     }
 }

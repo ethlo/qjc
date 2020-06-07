@@ -15,20 +15,20 @@ import com.ethlo.jc.java.JavaCompiler;
 public class JavaCompilerTest
 {
     @Test
-    public void compileJavaSimplest() throws IOException, ClassNotFoundException
+    public void compileSimplest() throws IOException, ClassNotFoundException
     {
-        testJavaCompilation("class Test{}");
+        testCompilation("class Test{}");
     }
 
     @Test(expected=CompilationException.class)
-    public void compileJavaInvalid() throws IOException, ClassNotFoundException
+    public void compileInvalid() throws IOException, ClassNotFoundException
     {
-        testJavaCompilation("class Test{bar}");
+        testCompilation("class Test{bar}");
     }
 
-    private void testJavaCompilation(final String content) throws IOException, ClassNotFoundException
+    private void testCompilation(final String content) throws IOException, ClassNotFoundException
     {
-        final JavaCompiler javaCompiler = new JavaCompiler(JavaCompilerTest.class.getClassLoader());
+        final Compiler javaCompiler = new JavaCompiler(JavaCompilerTest.class.getClassLoader());
         final Path srcDir = Files.createTempDirectory("java-compile-test");
         final Path classesDir = srcDir.resolve("classes");
         Files.write(srcDir.resolve("Test.java"), content.getBytes(StandardCharsets.UTF_8));
