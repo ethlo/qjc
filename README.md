@@ -9,5 +9,5 @@
 Simple wrapper API for compiling source code and loading new classes to the JVM code on-the-fly.
 
 ## Supported languages
-* Java 8/9 +
-* Groovy 2.x/3.x
+* 9+
+* Groovy 3+
