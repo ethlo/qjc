@@ -19,8 +19,6 @@ package com.ethlo.qjc.java;/*-
  */
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -141,33 +139,12 @@ public class CustomClassloaderJavaFileManager implements JavaFileManager
 
     public Iterable<Set<Location>> listLocationsForModules(final Location location) throws IOException
     {
-        return invokeIfAvailable(location, "listLocationsForModules");
+        return standardFileManager.listLocationsForModules(location);
     }
 
     public String inferModuleName(final Location location) throws IOException
     {
-        return invokeIfAvailable(location, "inferModuleName");
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T invokeIfAvailable(final Location location, final String name)
-    {
-        final Method[] methods = standardFileManager.getClass().getDeclaredMethods();
-        for (Method method : methods)
-        {
-            if (method.getName().equals(name) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == Location.class)
-            {
-                try
-                {
-                    return (T) method.invoke(standardFileManager, location);
-                }
-                catch (IllegalAccessException | InvocationTargetException e)
-                {
-                    throw new UnsupportedOperationException("Unable to invoke method " + name);
-                }
-            }
-        }
-        throw new UnsupportedOperationException("Unable to find method " + name);
+        return standardFileManager.inferModuleName(location);
     }
 
     @Override
