@@ -5,7 +5,7 @@
     <parent>
         <artifactId>qjc</artifactId>
         <groupId>com.ethlo.qjc</groupId>
-        <version>0.2.0</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>qjc-groovy</artifactId>
@@ -19,9 +19,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
+            <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>3.0.7</version>
+            <version>4.0.11</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
