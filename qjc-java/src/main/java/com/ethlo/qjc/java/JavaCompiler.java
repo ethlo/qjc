@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
-import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
@@ -52,13 +51,6 @@ public class JavaCompiler implements Compiler
     private static final String JAVA_EXTENSION = "java";
 
     private static final Logger logger = LoggerFactory.getLogger(JavaCompiler.class);
-
-    private final ClassLoader classLoader;
-
-    public JavaCompiler(ClassLoader classLoader)
-    {
-        this.classLoader = classLoader;
-    }
 
     private static List<String> buildCompilerOptions(final Collection<Path> sourcePath, final Path classesDirectory)
     {
@@ -92,7 +84,6 @@ public class JavaCompiler implements Compiler
 
         try (final StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(null, Locale.getDefault(), StandardCharsets.UTF_8))
         {
-            final JavaFileManager fileManager = new CustomClassloaderJavaFileManager(classLoader, standardFileManager);
             final List<File> sourceFiles = CompilerUtil.findSourceFiles(JAVA_EXTENSION, sourcePaths.toArray(new Path[0])).stream().map(Path::toFile).collect(Collectors.toList());
             if (sourceFiles.isEmpty())
             {
@@ -109,7 +100,7 @@ public class JavaCompiler implements Compiler
             logger.debug("Compiler options: {}", StringUtils.collectionToCommaDelimitedString(compilerOptions));
 
             final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-            final javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, compilerOptions, null, compilationUnits);
+            final javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, standardFileManager, diagnostics, compilerOptions, null, compilationUnits);
             final Boolean retVal = task.call();
             final StringBuilder s = new StringBuilder();
             for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics())

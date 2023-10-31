@@ -50,6 +50,21 @@ public class JavaCompilerTest
     }
 
     @Test
+    public void compileExtReference() throws IOException, ClassNotFoundException
+    {
+        final Map<String, String> classDefs = new LinkedHashMap<>();
+        classDefs.put("LibUsage", """
+                        public class LibUsage
+                        {
+                            private static final Class<?> type = org.apache.logging.log4j.util.Base64Util.class;
+                        }
+                """);
+        final Path classesDir = testCompilation(classDefs);
+        final ClassLoader classLoader = new URLClassLoader(new URL[]{IoUtil.toURL(classesDir)});
+        classLoader.loadClass("LibUsage");
+    }
+
+    @Test
     public void compileMultiple() throws IOException, ClassNotFoundException
     {
         final Map<String, String> classDefs = new LinkedHashMap<>();
@@ -60,12 +75,11 @@ public class JavaCompilerTest
         classLoader.loadClass("Test2");
     }
 
-    private Path testCompilation(Map<String, String> classDefinitions) throws IOException, ClassNotFoundException
+    private Path testCompilation(Map<String, String> classDefinitions) throws IOException
     {
         final Path srcDir = Files.createTempDirectory("java-compile-test");
         final Path classesDir = srcDir.resolve("classes");
-        final ClassLoader classLoader = new URLClassLoader(new URL[]{IoUtil.toURL(classesDir)});
-        final Compiler javaCompiler = new JavaCompiler(classLoader);
+        final Compiler javaCompiler = new JavaCompiler();
         Files.createDirectories(classesDir);
         for (final Map.Entry<String, String> e : classDefinitions.entrySet())
         {
