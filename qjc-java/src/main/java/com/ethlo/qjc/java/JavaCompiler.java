@@ -18,24 +18,19 @@ package com.ethlo.qjc.java;/*-
  * #L%
  */
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import org.slf4j.Logger;
@@ -52,27 +47,6 @@ public class JavaCompiler implements Compiler
 
     private static final Logger logger = LoggerFactory.getLogger(JavaCompiler.class);
 
-    private static List<String> buildCompilerOptions(final Collection<Path> sourcePath, final Path classesDirectory)
-    {
-        final Map<String, String> compilerOpts = new LinkedHashMap<>();
-
-        compilerOpts.put("d", classesDirectory.toAbsolutePath().toString());
-
-        compilerOpts.put("sourcepath", StringUtils.collectionToDelimitedString(sourcePath, File.separator));
-
-        final List<String> opts = new ArrayList<>(compilerOpts.size() * 2);
-        for (Map.Entry<String, String> compilerOption : compilerOpts.entrySet())
-        {
-            opts.add("-" + compilerOption.getKey());
-            String value = compilerOption.getValue();
-            if (!StringUtils.isEmpty(value))
-            {
-                opts.add(value);
-            }
-        }
-        return opts;
-    }
-
     @Override
     public void compile(final Set<Path> sourcePaths, Path classesDirectory)
     {
@@ -84,7 +58,7 @@ public class JavaCompiler implements Compiler
 
         try (final StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(null, Locale.getDefault(), StandardCharsets.UTF_8))
         {
-            final List<File> sourceFiles = CompilerUtil.findSourceFiles(JAVA_EXTENSION, sourcePaths.toArray(new Path[0])).stream().map(Path::toFile).collect(Collectors.toList());
+            final List<Path> sourceFiles = CompilerUtil.findSourceFiles(JAVA_EXTENSION, sourcePaths);
             if (sourceFiles.isEmpty())
             {
                 logger.debug("No Java files found in {}", StringUtils.collectionToCommaDelimitedString(sourcePaths));
@@ -94,13 +68,13 @@ public class JavaCompiler implements Compiler
 
             logger.debug("Compiling: {}", StringUtils.collectionToCommaDelimitedString(sourceFiles));
 
-            final Iterable<? extends JavaFileObject> compilationUnits = standardFileManager.getJavaFileObjectsFromFiles(sourceFiles);
+            final Iterable<? extends JavaFileObject> compilationUnits = standardFileManager.getJavaFileObjects(sourceFiles.toArray(new Path[0]));
 
-            List<String> compilerOptions = buildCompilerOptions(sourcePaths, classesDirectory);
-            logger.debug("Compiler options: {}", StringUtils.collectionToCommaDelimitedString(compilerOptions));
+            standardFileManager.setLocationFromPaths(StandardLocation.SOURCE_PATH, sourcePaths);
+            standardFileManager.setLocationFromPaths(StandardLocation.CLASS_OUTPUT, List.of(classesDirectory));
 
             final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-            final javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, standardFileManager, diagnostics, compilerOptions, null, compilationUnits);
+            final javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, standardFileManager, diagnostics, List.of(), null, compilationUnits);
             final Boolean retVal = task.call();
             final StringBuilder s = new StringBuilder();
             for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics())

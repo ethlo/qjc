@@ -20,11 +20,9 @@ package com.ethlo.qjc.groovy;
  * #L%
  */
 
-import java.io.FileNotFoundException;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
+import com.ethlo.qjc.Compiler;
+import com.ethlo.qjc.*;
+import groovy.lang.GroovyClassLoader;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilationUnit;
@@ -32,12 +30,11 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ethlo.qjc.CompilationException;
-import com.ethlo.qjc.Compiler;
-import com.ethlo.qjc.CompilerUtil;
-import com.ethlo.qjc.IoUtil;
-import com.ethlo.qjc.StringUtils;
-import groovy.lang.GroovyClassLoader;
+import java.io.FileNotFoundException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 
 public class GroovyCompiler implements Compiler
 {

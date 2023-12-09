@@ -40,6 +40,16 @@ public class CompilerUtil
         return result;
     }
 
+    public static List<Path> findSourceFiles(String extension, Iterable<Path> sourceDirectories)
+    {
+        final List<Path> result = new LinkedList<>();
+        for (Path dir : sourceDirectories)
+        {
+            result.addAll(findSourceFiles(extension, dir));
+        }
+        return result;
+    }
+
     public static List<Path> findSourceFiles(String extension, Path sourceDirectory)
     {
         if (Files.exists(sourceDirectory))
